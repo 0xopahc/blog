@@ -1,0 +1,15 @@
+name = "5tv-blog"
+main = "cf/worker.js"
+compatibility_date = "2024-11-01"
+
+# Serve this repo as static assets (index.html, posts/, cf/logger.js, …)
+[assets]
+directory = "."
+binding = "ASSETS"
+# always hit the worker first so every request gets logged, then ASSETS serves files
+run_worker_first = true
+
+# Optional — uncomment after creating a dataset in the CF dashboard:
+# [[analytics_engine_datasets]]
+# binding = "ANALYTICS"
+# dataset = "blog_traffic"

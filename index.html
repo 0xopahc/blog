@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>5tv</title>
+  <style>
+    :root {
+      --bg: #0c0c0c;
+      --fg: #e8e8e8;
+      --muted: #777;
+      --line: #222;
+      --accent: #8fbc8f;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 17px; }
+    body {
+      font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.65;
+      max-width: 38rem;
+      margin: 0 auto;
+      padding: 3.5rem 1.25rem 5rem;
+      min-height: 100vh;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; text-underline-offset: 3px; }
+    header { margin-bottom: 3rem; }
+    header h1 {
+      font-size: 1rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: lowercase;
+    }
+    header h1 a { color: var(--fg); }
+    header p {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-top: 0.35rem;
+    }
+    nav {
+      display: flex;
+      gap: 1.25rem;
+      margin-top: 1.25rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 1rem;
+    }
+    nav a { color: var(--muted); }
+    nav a:hover, nav a.active { color: var(--fg); }
+    h2 {
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+    ul.posts { list-style: none; }
+    ul.posts li {
+      border-top: 1px solid var(--line);
+    }
+    ul.posts li:last-child { border-bottom: 1px solid var(--line); }
+    ul.posts a {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.9rem 0;
+      color: var(--fg);
+    }
+    ul.posts a:hover { color: var(--accent); text-decoration: none; }
+    ul.posts time {
+      color: var(--muted);
+      font-size: 0.8rem;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    footer {
+      margin-top: 4rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1><a href="index.html">5tv</a></h1>
+    <p>notes · lab · builds</p>
+    <nav>
+      <a href="index.html" class="active">index</a>
+      <a href="#posts">posts</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="posts">
+      <h2>posts</h2>
+      <ul class="posts" id="post-list">
+        <!-- filled by script from POSTS below; also works without js via noscript -->
+      </ul>
+      <noscript>
+        <ul class="posts">
+          <li><a href="posts/homelab.html">homelab <time>2026</time></a></li>
+          <li><a href="posts/canipay.html">canipay <time>2026</time></a></li>
+        </ul>
+      </noscript>
+    </section>
+  </main>
+
+  <footer>
+    <span id="year"></span> · raw html · no framework
+  </footer>
+
+  <script>
+    // post index — add entries here
+    const POSTS = [
+      { title: "homelab", href: "posts/homelab.html", date: "2026-07" },
+      { title: "canipay", href: "posts/canipay.html", date: "2026-07" },
+    ];
+
+    const list = document.getElementById("post-list");
+    POSTS.forEach((p) => {
+      const li = document.createElement("li");
+      li.innerHTML =
+        `<a href="${p.href}"><span>${p.title}</span><time datetime="${p.date}">${p.date}</time></a>`;
+      list.appendChild(li);
+    });
+
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+  <script src="/cf/logger.js" defer></script>
+</body>
+</html>

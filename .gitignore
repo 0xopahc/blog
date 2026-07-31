@@ -1,0 +1,6 @@
+gh
+gh.pub
+.DS_Store
+node_modules/
+.wrangler/
+dist/
