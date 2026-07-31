@@ -1,11 +1,3 @@
-/**
- * 5tv — client traffic beacon
- * POSTs a lightweight page hit to the same-origin worker (/cf/log).
- * Fire-and-forget. Never blocks render. No cookies.
- *
- * Include on every page:
- *   <script src="/cf/logger.js" defer></script>
- */
 (function () {
   "use strict";
 
@@ -36,7 +28,6 @@
         })(),
         sw: screen && screen.width ? screen.width : 0,
         sh: screen && screen.height ? screen.height : 0,
-        // navigation timing (ms) when available
         ttfb: nav && nav.responseStart ? Math.round(nav.responseStart) : null,
         dcl: nav && nav.domContentLoadedEventEnd
           ? Math.round(nav.domContentLoadedEventEnd)
@@ -45,7 +36,6 @@
 
       var body = JSON.stringify(payload);
 
-      // prefer sendBeacon (survives unload / tab close)
       if (navigator.sendBeacon) {
         var ok = navigator.sendBeacon(
           ENDPOINT,
@@ -54,7 +44,6 @@
         if (ok) return;
       }
 
-      // fallback
       fetch(ENDPOINT, {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -64,9 +53,7 @@
         credentials: "omit",
         cache: "no-store",
       }).catch(function () {});
-    } catch (_) {
-      /* never break the page for analytics */
-    }
+    } catch (_) {}
   }
 
   if (document.readyState === "complete") {

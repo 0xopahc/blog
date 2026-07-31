@@ -46,3 +46,34 @@ npm run deploy
 1. Browser loads page → `/cf/logger.js` beacons `POST /cf/log`
 2. Worker logs beacon + every request (`wrangler tail`)
 3. Worker serves HTML/CSS/JS from `public/` via `ASSETS`
+
+## multi-host (same worker)
+
+| host | response |
+|---|---|
+| `perssy.canipay.io` | blog (`public/`) |
+| `canipay.io` / `www.canipay.io` | bare html: *youcantpayyetsorry* |
+| `*.workers.dev` / localhost | blog (dev) |
+
+Routing is by `Host` header in `cf/worker.js` (`APEX_HOSTS`).
+
+### attach domains (dashboard)
+
+1. Zone `canipay.io` on Cloudflare DNS  
+2. Workers → **5tv-blog** → **Settings → Domains & Routes**  
+3. Add:
+   - `perssy.canipay.io`
+   - `canipay.io`
+   - `www.canipay.io` (optional)
+
+DNS: for each hostname, either let Workers auto-add the route, or point a CNAME/AAAA to the worker as the UI instructs. Same worker = same deploy.
+
+### local test by host
+
+```bash
+npm start
+# blog
+curl -H 'Host: perssy.canipay.io' http://127.0.0.1:8787/
+# apex stub
+curl -H 'Host: canipay.io' http://127.0.0.1:8787/
+```

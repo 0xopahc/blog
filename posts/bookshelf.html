@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>bookshelf · 5tv</title>
+  <link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="/css/bookshelf.css">
+</head>
+<body>
+  <header class="post-header">
+    <p class="crumb"><a href="/">5tv</a> / posts / bookshelf</p>
+    <h1>bookshelf</h1>
+    <time datetime="2026-07">2026-07</time>
+  </header>
+
+  <p class="shelf-intro">papers / pdfs. click spine → source.</p>
+
+  <section class="shelf-section">
+    <h2>reading</h2>
+    <ul class="shelf">
+      <li>
+        <a class="book" href="https://bitcoin.org/bitcoin.pdf" target="_blank" rel="noopener noreferrer">
+          <span class="book-spine" aria-hidden="true"></span>
+          <span class="book-body">
+            <span class="book-title">Bitcoin: A Peer-to-Peer Electronic Cash System</span>
+            <span class="book-meta">Satoshi Nakamoto · 2008 · whitepaper</span>
+          </span>
+          <span class="book-tag">pdf</span>
+        </a>
+      </li>
+      <li>
+        <a class="book" href="https://bitcoin.org/en/bitcoin-paper" target="_blank" rel="noopener noreferrer">
+          <span class="book-spine" aria-hidden="true"></span>
+          <span class="book-body">
+            <span class="book-title">Bitcoin paper (html)</span>
+            <span class="book-meta">bitcoin.org</span>
+          </span>
+          <span class="book-tag">web</span>
+        </a>
+      </li>
+    </ul>
+  </section>
+
+  <section class="shelf-section">
+    <h2>queue</h2>
+    <ul class="shelf" id="queue"></ul>
+    <p class="shelf-empty" id="queue-empty">empty</p>
+  </section>
+
+  <hr class="rule">
+  <footer class="post-footer">
+    <a href="/">← index</a>
+  </footer>
+
+  <script>
+    const QUEUE = [];
+
+    const shelf = document.getElementById("queue");
+    const empty = document.getElementById("queue-empty");
+
+    if (QUEUE.length) {
+      empty.hidden = true;
+      QUEUE.forEach((b) => {
+        const li = document.createElement("li");
+        li.innerHTML =
+          `<a class="book" href="${b.href}" target="_blank" rel="noopener noreferrer">` +
+          `<span class="book-spine" aria-hidden="true"></span>` +
+          `<span class="book-body">` +
+          `<span class="book-title">${b.title}</span>` +
+          `<span class="book-meta">${b.meta || ""}</span>` +
+          `</span>` +
+          `<span class="book-tag">${b.tag || "link"}</span>` +
+          `</a>`;
+        shelf.appendChild(li);
+      });
+    }
+  </script>
+  <script src="/cf/logger.js" defer></script>
+</body>
+</html>

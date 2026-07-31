@@ -1,17 +1,20 @@
-# 5tv blog — Worker + static HTML (no build step)
+# 5tv blog + canipay.io apex on one Worker
 name = "5tv-blog"
 main = "cf/worker.js"
 compatibility_date = "2024-11-01"
+workers_dev = true
+preview_urls = true
 
-# Only pure static files live here (never node_modules / .git)
+# Worker routes for apex (zone DNS must be orange-cloud / proxied)
+# Custom domains for www + perssy are managed in CF dashboard / API.
+routes = [
+  { pattern = "canipay.io", zone_name = "canipay.io" },
+  { pattern = "canipay.io/*", zone_name = "canipay.io" },
+]
+
+# Static blog files
 [assets]
 directory = "./public"
 binding = "ASSETS"
-# Worker intercepts beacon path; static files served from public/
-run_worker_first = ["/cf/log"]
+run_worker_first = true
 not_found_handling = "404-page"
-
-# Optional Analytics Engine:
-# [[analytics_engine_datasets]]
-# binding = "ANALYTICS"
-# dataset = "blog_traffic"

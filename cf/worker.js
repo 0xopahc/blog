@@ -1,33 +1,56 @@
-/**
- * 5tv Worker
- *
- * - POST /cf/log  → client pageview beacon (cf/logger.js)
- * - everything else → static HTML via ASSETS binding
- * - every request → JSON line in Workers Logs (`wrangler tail`)
- *
- * Run:   npm start
- * Ship:  npm run deploy
- */
-
 const LOG_PATH = "/cf/log";
+const APEX_HOSTS = new Set(["canipay.io", "www.canipay.io"]);
+
+const APEX_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>canipay</title>
+</head>
+<body>
+  <p>youcantpayyetsorry</p>
+</body>
+</html>
+`;
 
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    const host = (request.headers.get("host") || url.hostname || "")
+      .toLowerCase()
+      .split(":")[0];
     const t0 = Date.now();
 
-    // CORS preflight for beacon
+    if (APEX_HOSTS.has(host)) {
+      const response = new Response(APEX_HTML, {
+        status: 200,
+        headers: {
+          "content-type": "text/html; charset=utf-8",
+          "cache-control": "public, max-age=60",
+          "x-site": "canipay-apex",
+        },
+      });
+      ctx.waitUntil(
+        logLine(request, env, {
+          kind: "apex",
+          host,
+          status: 200,
+          ms: Date.now() - t0,
+        })
+      );
+      return response;
+    }
+
     if (url.pathname === LOG_PATH && request.method === "OPTIONS") {
       return cors(url.origin, 204);
     }
 
-    // Client logger sink
     if (url.pathname === LOG_PATH && request.method === "POST") {
       ctx.waitUntil(handleBeacon(request, env));
       return cors(url.origin, 204);
     }
 
-    // Static HTML / assets
     if (!env.ASSETS) {
       return new Response("ASSETS binding missing — check wrangler.toml [assets]", {
         status: 500,
@@ -46,6 +69,7 @@ export default {
     ctx.waitUntil(
       logLine(request, env, {
         kind: "request",
+        host,
         status: response.status,
         ms: Date.now() - t0,
       })
@@ -100,10 +124,19 @@ async function handleBeacon(request, env) {
 async function logLine(request, env, extra) {
   const url = new URL(request.url);
   const cf = request.cf || {};
+  const host = (
+    extra.host ||
+    request.headers.get("host") ||
+    url.hostname ||
+    ""
+  )
+    .toLowerCase()
+    .split(":")[0];
 
   const row = {
     kind: extra.kind || "request",
     ts: new Date().toISOString(),
+    host,
     method: request.method,
     path: extra.path || url.pathname + url.search,
     status: extra.status ?? null,
@@ -126,16 +159,14 @@ async function logLine(request, env, extra) {
     tls: cf.tlsVersion || "",
   };
 
-  // Workers Logs / wrangler tail
   console.log(JSON.stringify(row));
 
-  // Optional Analytics Engine
   if (env.ANALYTICS && typeof env.ANALYTICS.writeDataPoint === "function") {
     try {
       env.ANALYTICS.writeDataPoint({
-        blobs: [row.kind, row.path, row.country, row.method, row.ref],
+        blobs: [row.kind, row.host, row.path, row.country, row.method],
         doubles: [Number(row.status) || 0, Number(row.ms) || 0],
-        indexes: [row.path || "/"],
+        indexes: [row.host || row.path || "/"],
       });
     } catch (err) {
       console.error(JSON.stringify({ kind: "analytics_fail", err: String(err) }));
