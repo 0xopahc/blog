@@ -1,0 +1,14 @@
+# never upload these as site assets
+.git
+.github
+.wrangler
+node_modules
+mdblog
+package.json
+package-lock.json
+yarn.lock
+wrangler.toml
+README.md
+.gitignore
+.DS_Store
+*.md

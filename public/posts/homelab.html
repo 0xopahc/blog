@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>homelab · 5tv</title>
+  <style>
+    :root {
+      --bg: #0c0c0c;
+      --fg: #e8e8e8;
+      --muted: #777;
+      --line: #222;
+      --accent: #8fbc8f;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 17px; }
+    body {
+      font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.7;
+      max-width: 38rem;
+      margin: 0 auto;
+      padding: 3.5rem 1.25rem 5rem;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; text-underline-offset: 3px; }
+    header { margin-bottom: 2.5rem; }
+    .crumb {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+    .crumb a { color: var(--muted); }
+    .crumb a:hover { color: var(--fg); }
+    h1 {
+      font-size: 1.35rem;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.4rem;
+    }
+    time { font-size: 0.8rem; color: var(--muted); }
+    article { margin-top: 2rem; }
+    article p { margin-bottom: 1.1rem; color: #ccc; }
+    article h2 {
+      font-size: 0.95rem;
+      font-weight: 500;
+      margin: 2rem 0 0.75rem;
+      color: var(--fg);
+    }
+    article ul {
+      margin: 0 0 1.1rem 1.1rem;
+      color: #ccc;
+    }
+    article li { margin-bottom: 0.35rem; }
+    article code {
+      font-size: 0.88em;
+      background: #161616;
+      padding: 0.1em 0.35em;
+      border-radius: 3px;
+      color: var(--accent);
+    }
+    article pre {
+      background: #121212;
+      border: 1px solid var(--line);
+      padding: 0.9rem 1rem;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      margin: 0 0 1.25rem;
+      border-radius: 4px;
+      color: #bbb;
+    }
+    article pre code { background: none; padding: 0; color: inherit; }
+    hr {
+      border: none;
+      border-top: 1px solid var(--line);
+      margin: 2.5rem 0;
+    }
+    footer { font-size: 0.8rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="crumb"><a href="../index.html">5tv</a> / posts / homelab</p>
+    <h1>homelab</h1>
+    <time datetime="2026-07">2026-07</time>
+  </header>
+
+  <article>
+    <p>
+      notes on a small home setup — machines, network, and whatever keeps the lights on.
+      replace this with real content when ready.
+    </p>
+
+    <h2>stack</h2>
+    <ul>
+      <li>router / dns</li>
+      <li>one box for services</li>
+      <li>backups that actually run</li>
+    </ul>
+
+    <h2>scratch</h2>
+    <pre><code># example
+ssh lab
+docker ps
+</code></pre>
+
+    <p>more later.</p>
+  </article>
+
+  <hr>
+  <footer>
+    <a href="../index.html">← index</a>
+  </footer>
+  <script src="/cf/logger.js" defer></script>
+</body>
+</html>

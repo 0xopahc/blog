@@ -1,44 +1,48 @@
 # 5tv blog
 
-raw html. no build. no framework. Cloudflare Worker for traffic logs.
+raw html + Cloudflare Worker. **no HTML build / no framework.**
 
 ```
 .
-├── index.html
-├── posts/
-│   ├── homelab.html
-│   └── canipay.html
-├── cf/
-│   ├── logger.js    # browser beacon → POST /cf/log
-│   └── worker.js    # edge logger + static assets
-└── wrangler.toml
+├── index.html, posts/, 404.html   # edit these
+├── cf/worker.js                   # edge logger
+├── cf/logger.js                   # browser beacon
+├── public/                        # synced assets (auto; do not hand-edit)
+├── scripts/sync-public.mjs
+├── wrangler.toml
+└── package.json
 ```
 
-## run locally (static only)
+## commands
 
 ```bash
-python3 -m http.server 8080
-# open http://localhost:8080
-# note: /cf/log will 404 without the worker
+npm install
+
+npm start          # sync → wrangler dev  (http://127.0.0.1:8787)
+npm run deploy     # sync → wrangler deploy
+npm run tail       # live logs
+npm run check      # dry-run (no account)
 ```
 
-## deploy worker
+`prestart` / `predeploy` run `sync` first so `public/` matches your HTML.
+
+## if “build” fails on Cloudflare
+
+This is **not** a Pages static-site generator.
+
+| wrong | right |
+|---|---|
+| Framework preset / `npm run build` | **none** — empty build command |
+| Build output directory `dist` | use **Workers** + this repo’s `wrangler.toml` |
+| Assets = whole repo (incl. `node_modules`) | assets = `./public` only |
 
 ```bash
-npx wrangler deploy
-npx wrangler tail     # live JSON request + beacon logs
+npx wrangler login   # once
+npm run deploy
 ```
 
-Every request is `console.log`'d (Workers Logs). Client pageviews hit `POST /cf/log`.
+## flow
 
-Optional Analytics Engine: uncomment the binding in `wrangler.toml`.
-
-## add a post
-
-1. copy `posts/homelab.html` → `posts/your-slug.html`
-2. edit title + body
-3. append to `POSTS` in `index.html`
-
-```js
-{ title: "your-slug", href: "posts/your-slug.html", date: "2026-08" },
-```
+1. Browser loads page → `/cf/logger.js` beacons `POST /cf/log`
+2. Worker logs beacon + every request (`wrangler tail`)
+3. Worker serves HTML/CSS/JS from `public/` via `ASSETS`

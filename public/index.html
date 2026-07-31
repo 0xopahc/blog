@@ -110,10 +110,11 @@
   </main>
 
   <footer>
+    <span id="year"></span> · raw html · no framework
   </footer>
 
   <script>
-
+    // post index — add entries here
     const POSTS = [
       { title: "homelab", href: "posts/homelab.html", date: "2026-07" },
       { title: "canipay", href: "posts/canipay.html", date: "2026-07" },
@@ -129,5 +130,6 @@
 
     document.getElementById("year").textContent = new Date().getFullYear();
   </script>
+  <script src="/cf/logger.js" defer></script>
 </body>
 </html>

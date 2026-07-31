@@ -4,3 +4,5 @@ gh.pub
 node_modules/
 .wrangler/
 dist/
+package-lock.json
+.dev.vars
