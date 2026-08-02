@@ -121,6 +121,18 @@ async function handleBeacon(request, env) {
   });
 }
 
+function clientIp(request) {
+  const cf = request.headers.get("cf-connecting-ip");
+  if (cf) return cf.trim();
+  const trueClient = request.headers.get("true-client-ip");
+  if (trueClient) return trueClient.trim();
+  const xff = request.headers.get("x-forwarded-for");
+  if (xff) return xff.split(",")[0].trim();
+  const real = request.headers.get("x-real-ip");
+  if (real) return real.trim();
+  return "";
+}
+
 async function logLine(request, env, extra) {
   const url = new URL(request.url);
   const cf = request.cf || {};
@@ -133,6 +145,8 @@ async function logLine(request, env, extra) {
     .toLowerCase()
     .split(":")[0];
 
+  const ip = clientIp(request);
+
   const row = {
     kind: extra.kind || "request",
     ts: new Date().toISOString(),
@@ -141,9 +155,10 @@ async function logLine(request, env, extra) {
     path: extra.path || url.pathname + url.search,
     status: extra.status ?? null,
     ms: extra.ms ?? null,
-    ip: request.headers.get("cf-connecting-ip") || "",
+    ip,
     country: extra.country || cf.country || request.headers.get("cf-ipcountry") || "",
     colo: extra.colo || cf.colo || "",
+    asn: cf.asn ?? null,
     ray: request.headers.get("cf-ray") || "",
     ua: clip(request.headers.get("user-agent"), 180),
     ref: extra.ref || clip(request.headers.get("referer"), 200),
@@ -164,9 +179,9 @@ async function logLine(request, env, extra) {
   if (env.ANALYTICS && typeof env.ANALYTICS.writeDataPoint === "function") {
     try {
       env.ANALYTICS.writeDataPoint({
-        blobs: [row.kind, row.host, row.path, row.country, row.method],
+        blobs: [row.kind, row.host, row.path, row.country, row.method, row.ip],
         doubles: [Number(row.status) || 0, Number(row.ms) || 0],
-        indexes: [row.host || row.path || "/"],
+        indexes: [row.ip || row.host || row.path || "/"],
       });
     } catch (err) {
       console.error(JSON.stringify({ kind: "analytics_fail", err: String(err) }));
