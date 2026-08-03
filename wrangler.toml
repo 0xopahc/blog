@@ -1,5 +1,5 @@
 # 5tv blog + canipay.io apex on one Worker
-name = "5tv-blog"
+name = "blog"
 main = "cf/worker.js"
 compatibility_date = "2024-11-01"
 workers_dev = true
