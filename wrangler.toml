@@ -5,15 +5,26 @@ compatibility_date = "2024-11-01"
 workers_dev = true
 preview_urls = true
 
-# Worker routes for apex (zone DNS must be orange-cloud / proxied)
-# Custom domains for www + perssy are managed in CF dashboard / API.
+# Apex routes live under [env.production] so `wrangler dev` keeps Host=localhost
+# (top-level `routes` rewrite every local request to canipay.io and break blog/mdblog).
+# Custom domains for perssy / www are still attached in the CF dashboard.
+# Deploy with: npm run deploy  →  wrangler deploy -e production
+
+# Static blog files
+[assets]
+directory = "./public"
+binding = "ASSETS"
+run_worker_first = true
+not_found_handling = "404-page"
+
+[env.production]
+name = "blog"
 routes = [
   { pattern = "canipay.io", zone_name = "canipay.io" },
   { pattern = "canipay.io/*", zone_name = "canipay.io" },
 ]
 
-# Static blog files
-[assets]
+[env.production.assets]
 directory = "./public"
 binding = "ASSETS"
 run_worker_first = true
