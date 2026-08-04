@@ -9,9 +9,9 @@
     "precheck": "node scripts/sync-public.mjs",
     "start": "wrangler dev",
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
-    "tail": "wrangler tail",
-    "check": "wrangler deploy --dry-run",
+    "deploy": "wrangler deploy -e production",
+    "tail": "wrangler tail -e production",
+    "check": "wrangler deploy -e production --dry-run",
     "sync": "node scripts/sync-public.mjs"
   },
   "devDependencies": {

@@ -5,7 +5,8 @@ raw html + Cloudflare Worker. **no HTML build / no framework.**
 ```
 .
 ├── index.html, posts/, 404.html   # edit these
-├── cf/worker.js                   # edge logger
+├── mdblog/                        # raw markdown notes (public at /mdblog/)
+├── cf/worker.js                   # edge router + logger
 ├── cf/logger.js                   # browser beacon
 ├── public/                        # synced assets (auto; do not hand-edit)
 ├── scripts/sync-public.mjs
@@ -19,12 +20,14 @@ raw html + Cloudflare Worker. **no HTML build / no framework.**
 npm install
 
 npm start          # sync → wrangler dev  (http://127.0.0.1:8787)
-npm run deploy     # sync → wrangler deploy
-npm run tail       # live logs
+npm run deploy     # sync → wrangler deploy -e production
+npm run tail       # live logs (production worker)
 npm run check      # dry-run (no account)
 ```
 
-`prestart` / `predeploy` run `sync` first so `public/` matches your HTML.
+`prestart` / `predeploy` run `sync` first so `public/` matches your sources.
+
+**Why `-e production`?** Top-level `routes` for `canipay.io` make local `wrangler dev` rewrite every request Host to `canipay.io`, so the apex stub would shadow the blog. Routes only apply on production deploy; `perssy` stays a dashboard custom domain.
 
 ## if “build” fails on Cloudflare
 
@@ -43,15 +46,27 @@ npm run deploy
 
 ## flow
 
-1. Browser loads page → `/cf/logger.js` beacons `POST /cf/log`
-2. Worker logs beacon + every request (`wrangler tail`)
-3. Worker serves HTML/CSS/JS from `public/` via `ASSETS`
+1. Browser → DNS (orange-cloud) → Cloudflare edge → **your Worker**
+2. Worker branches on `Host` (apex stub vs blog)
+3. Blog paths: Worker logs + serves files from `public/` via `ASSETS`
+4. Browser pages → `/cf/logger.js` beacons `POST /cf/log`
+
+### mdblog (raw notes)
+
+| URL | what |
+|---|---|
+| `https://perssy.canipay.io/mdblog/` | directory index (generated at sync) |
+| `…/mdblog/2026/` | year listing |
+| `…/mdblog/2026/8.3.26.md` | raw markdown text |
+| `…/mdblog/2026/8.2.26` | extensionless notes → forced `text/markdown` |
+
+Edit files only under `mdblog/`. `npm start` / `npm run deploy` runs `sync`, which copies into `public/mdblog/` and writes `index.html` / `index.txt` per folder (Workers Assets has **no** auto dir listing).
 
 ## multi-host (same worker)
 
 | host | response |
 |---|---|
-| `perssy.canipay.io` | blog (`public/`) |
+| `perssy.canipay.io` | blog (`public/`) including `/mdblog/` |
 | `canipay.io` / `www.canipay.io` | bare html: *youcantpayyetsorry* |
 | `*.workers.dev` / localhost | blog (dev) |
 
@@ -72,8 +87,12 @@ DNS: for each hostname, either let Workers auto-add the route, or point a CNAME/
 
 ```bash
 npm start
-# blog
-curl -H 'Host: perssy.canipay.io' http://127.0.0.1:8787/
+# blog + mdblog (default local host)
+curl http://127.0.0.1:8787/
+curl -sL http://127.0.0.1:8787/mdblog/
+curl http://127.0.0.1:8787/mdblog/2026/8.3.26.md
 # apex stub
 curl -H 'Host: canipay.io' http://127.0.0.1:8787/
+# production host name (blog path — Host is not rewritten without top-level routes)
+curl -H 'Host: perssy.canipay.io' http://127.0.0.1:8787/mdblog/
 ```
